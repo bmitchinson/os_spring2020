@@ -1,0 +1,3 @@
+contents of textfile 2
+hello :)
+textfile 1 is blank
