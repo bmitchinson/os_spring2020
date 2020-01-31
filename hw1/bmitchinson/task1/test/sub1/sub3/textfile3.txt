@@ -1,0 +1,2 @@
+contents of textfile 3
+textfile 1 is blank
