@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# print to stdout the path of all files in (path)
-# recursively with a name ending with (ext)
+# print to stdout the path of all files in ($path)
+# recursively with a name ending with ($ext)
 echo "****************"
 echo "task1"
 echo "****************"
