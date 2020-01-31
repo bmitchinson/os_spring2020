@@ -1,13 +1,17 @@
 #!/bin/bash
 
+# Given ($dir), the script must print
+# {# of files contained in dir}{space}{# of subdirs in $dir}
 echo "****************"
 echo "task3"
 echo "****************"
-files=0
-let "files = "
-# if [(($(ls -l | wc -l) - 1)) > "0"]
-# then
-#   echo "$(($(ls -l | wc -l) - 1))"
-# fi
-# echo "$((ls -l | grep -v '^total' | wc -l))"
+
+dir=$1;
+if [ -z "$dir" ]
+then
+  echo "Arg 1: (\$path) wasn't given."
+  exit 1
+fi
+
+echo "$(find $dir -type f | wc -l | tr -d [:space:]) $(find $dir -type d | wc -l | tr -d [:space:])"
 echo "****************"
