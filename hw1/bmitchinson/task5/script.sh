@@ -7,16 +7,21 @@ echo "task5"
 echo "****************"
 
 source=$1;
-if [ -z "$dir" ]
+if [ -z "$source" ]
 then
   echo "Arg 1: (\$source) wasn't given."
   exit 1
 fi
 
 dest=$2;
-if [ -z "$tag" ]
+if [ -z "$dest" ]
 then
   echo "Arg 2: (\$dest) wasn't given."
   exit 1
 fi
 
+echo "Copying executables to folder: \"$dest\""
+for exec_file in $(find $source -type f -perm -u+x); do
+  echo "Copied $exec_file"
+  cp $exec_file $2
+done
