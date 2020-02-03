@@ -25,3 +25,14 @@ for exec_file in $(find $source -type f -perm -u+x); do
   echo "Copied $exec_file"
   cp $exec_file $2
 done
+echo "****************"
+
+### Example: ./script.sh execs output
+
+# ****************
+# task5
+# ****************
+# Copying executables to folder: "output"
+# Copied execs/sub1/sub2/e_three.sh
+# Copied execs/e_one.sh
+# ****************
