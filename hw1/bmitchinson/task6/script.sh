@@ -38,7 +38,15 @@ then
   exit 1
 fi
 
-args="${@:4}"
+command=$4
+args="${@:5}"
 
 echo "$cwd $stdoutfile $stderrfile"
+echo "$command"
 echo "$args"
+
+$command "${args}"
+
+# TODO: Put in sub shell, pipe out + error from subshell
+# command > out 2>error
+# ./script.sh test/out test/err ../test echo "heyyo" "hi there"
