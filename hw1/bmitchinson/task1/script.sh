@@ -28,3 +28,14 @@ echo "****************"
 find $1 -name "*$2"
 echo "****************"
 
+### Example: ./script.sh ../test .txt
+
+# ****************
+# task1
+# ****************
+# Finding files that end in ".txt" in path: "test"
+# ****************
+# test/sub1/textfile1.txt
+# test/sub1/sub3/textfile3.txt
+# test/textfile2.txt
+# ****************

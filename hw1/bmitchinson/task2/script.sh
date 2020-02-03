@@ -21,3 +21,20 @@ do
   cat $f
 done
 echo "****************"
+
+### Example: `./script.sh test`
+
+# ****************
+# task2
+# ****************
+# Printing .txt files in path: "test"...
+# ****************
+# test/sub1/textfile1.txt
+# test/sub1/sub3/textfile3.txt
+# contents of textfile 3
+# textfile 1 is blank
+# test/textfile2.txt
+# contents of textfile 2
+# hello :)
+# textfile 1 is blank
+# ****************

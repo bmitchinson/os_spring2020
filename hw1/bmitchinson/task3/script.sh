@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Given ($dir), the script must print
-# {# of files contained in dir}{space}{# of subdirs in $dir}
+# {# of files contained in dir}{space}{# of subdirs in $dir including itself}
 echo "****************"
 echo "task3"
 echo "****************"
@@ -13,5 +13,15 @@ then
   exit 1
 fi
 
+find $dir -type d
+
 echo "$(find $dir -type f | wc -l | tr -d [:space:]) $(find $dir -type d | wc -l | tr -d [:space:])"
 echo "****************"
+
+### Example: ./script ../test
+
+# ****************
+# task3
+# ****************
+# 6 4
+# ****************

@@ -28,3 +28,12 @@ tar -cf "$2_$time.tar" -C $1 .
 
 echo "$2_$time.tar created"
 echo "****************"
+
+### Example: ./script.sh ../test fake_name
+
+# ****************
+# task4
+# ****************
+# Creating fake_name_1580759103.tar
+# fake_name_1580759103.tar created
+# ****************
