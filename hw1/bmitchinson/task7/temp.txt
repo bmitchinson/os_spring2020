@@ -1,0 +1,1 @@
+./script.sh: line 22: strace: command not found
