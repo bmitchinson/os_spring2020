@@ -14,7 +14,7 @@
 # I suggest using the bash array variable "${@:⟨n⟩}"
 
 echo "****************"
-echo "task6"
+echo "Task6 Complete"
 echo "****************"
 
 stdoutfile=$1;
@@ -41,12 +41,10 @@ fi
 command=$4
 args="${@:5}"
 
-echo "$cwd $stdoutfile $stderrfile"
-echo "$command"
-echo "$args"
+(cd $cwd && $command "${args}" > $stdoutfile 2>$stderrfile)
 
-$command "${args}"
+### Example: ./script.sh ../test2/out.txt ../test2/err.txt ../test2 echo "heyyo" "hi there"
 
-# TODO: Put in sub shell, pipe out + error from subshell
-# command > out 2>error
-# ./script.sh test/out test/err ../test echo "heyyo" "hi there"
+# ****************
+# Task6 Complete
+# ****************
