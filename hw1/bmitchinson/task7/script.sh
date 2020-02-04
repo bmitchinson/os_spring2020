@@ -17,9 +17,21 @@ fi
 
 args="${@:2}"
 
-# echo "strace "$command $args""
+strace $command "${args}" >out.tmp 2>err.tmp
 
-strace $command "${args}" 2>temp.txt
+head -n -1 err.tmp | while read -r line
+do
+  echo "${line%%(*}" >> all.tmp
+done
+
+readarray -t calls < all.tmp
+
+sort_uni=($(echo "${calls[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+
+cat out.tmp
+printf '%s\n' "${sort_uni[@]}"
+
+rm out.tmp err.tmp all.tmp
 
 ### Example: ./script.sh uname -m
 
