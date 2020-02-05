@@ -2,17 +2,27 @@
 #include <stdlib.h>
 #include <string.h>
 
-char* hex(char *asci);
+char* hex_encode(char *asci);
+char int_to_hex_char(int input);
 
 int main(int arg_count, char** argv) {
   for (int i = 0; i < arg_count; i++){
-    char* hex_res=( hex(argv[i]) );
+    char* hex_res=( hex_encode(argv[i]) );
     printf("%s\n", hex_res);
   }
   return 0;
 }
 
-char* hex(char *word){
+char int_to_hex_char(int input){
+  if (input > 9) {
+      return input + 87;
+    }
+    else {
+      return input + 48;
+    }
+}
+
+char* hex_encode(char *word){
   int letters = strlen(word);
   int coded_size = (letters * 2) + 1;
   char *coded = malloc(coded_size);
@@ -24,26 +34,15 @@ char* hex(char *word){
     int mod1 = ascii_val % 16;
     int next = ascii_val / 16;
     int mod2 = next % 16;
-    if (mod1 > 9) {
-      mod1 = 43;
-    }
-    else {
-      mod1+=48;
-    }
-    if (mod2 > 9) {
-      mod2 = 43;
-    }
-    else {
-      mod2+=48;
-    }
-    coded[j] = (char) mod2;
-    coded[j+1] = (char) mod1;
+    coded[j] = int_to_hex_char(mod2);
+    coded[j+1] = int_to_hex_char(mod1);
     j+=2;
   }
   coded[coded_size-1] = '\0';
 
   return coded;
 }
+
 
 /*
 Example: 13 to hex (0D)
