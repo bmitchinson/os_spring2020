@@ -17,10 +17,13 @@ char* hex(char *word){
   int coded_size = (letters * 2) + 1;
   char *coded = malloc(coded_size);
 
-  for (int i = 0; i < coded_size; i+=2){
-    // The only edge case in the 2 value assumption is less than 10 (16 dec) (includes \n)
-    coded[i] = '-';
-    coded[i+1] = '_';
+  int j = 0;
+  for (int i = 0; i < letters; i++){
+    int ascii_val = (int) word[i];
+    coded[j] = (char) ascii_val;
+    j++;
+    coded[j] = (char) ascii_val;
+    j++;
   }
   coded[coded_size-1] = '\0';
 
