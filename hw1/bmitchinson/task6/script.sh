@@ -13,10 +13,6 @@
 # To refer to all the arguments specified by the user after the argument ⟨cwd⟩,
 # I suggest using the bash array variable "${@:⟨n⟩}"
 
-echo "****************"
-echo "Task6 Complete"
-echo "****************"
-
 stdoutfile=$1;
 if [ -z "$stdoutfile" ]
 then
@@ -41,7 +37,8 @@ fi
 command=$4
 args="${@:5}"
 
-(cd $cwd && $command "${args}" > $stdoutfile 2>$stderrfile)
+(cd $cwd && $command "${args}" > $stdoutfile 2>$stderrfile | tee ; ( exit ${PIPESTATUS[0]} ) ) 
+echo "$?"
 
 ### Example: ./script.sh ../test2/out.txt ../test2/err.txt ../test2 echo "heyyo" "hi there"
 
