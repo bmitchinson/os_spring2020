@@ -4,7 +4,7 @@ stdout (if present redir out here, always will exist if given)
 stderr (if present redir err here, always will exist if given)
 arguments (hex encoded args, separated by null byte (00))
 extra_environments (extra env vars, hex encoded, separated by null byte (00))
-use_path (0: nothing 1: shell should search for binary_path (if 1 binary_path is just the binary title, no path given) in all dirs specified by the path env, using execvpe)
+use_path (0: no search, use *given* path  1: shell should search for binary_path (if 1 binary_path is just the binary title, no path given) in all dirs specified by the path env, using execvpe)
 copy_environment (0: don't propagate with existing shell vars / 1: do propagate)
 niceness (between -20 : 19, use setpriority after fork but before execv)
 wait (0: don't wait before starting next command 1: wait for termination before starting next.) regardless, "shell" program itself has to wait for all to end.
