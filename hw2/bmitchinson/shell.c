@@ -26,7 +26,7 @@ typedef struct {
 //function prototypes
 void print_parsed_command(command);
 short parse_command(command*, char*);
-
+void process_command(command);
 
 //global variables here
 
@@ -176,6 +176,22 @@ void free_command(command cmd){
   free(cmd.extra_environment);
 }
 
+void process_command(command cmd){
+  /*
+    process_command will:
+    - get a parsed_command variable
+    - create a child process
+    - set file redirection, niceness, arguments, envirionment variables, ...
+    
+    - call a proper variant of execv
+
+
+    - print when a child process is created and when any child process is terminated
+    - if necessary, wait for the termination of the program
+    */
+   
+}
+
 
 int main(int argc, char *argv[], char* env[]) {
 
@@ -190,7 +206,7 @@ int main(int argc, char *argv[], char* env[]) {
     //may be useful for debugging
     //print_parsed_command(parsed_command);
 
-    //process_command(...);
+    process_command(parsed_command);
     /*
     process_command will:
     - get a parsed_command variable
@@ -224,6 +240,9 @@ int main(int argc, char *argv[], char* env[]) {
     //     and are writable. Since stdout + stderr exist, delete their contents on
     //     load with `open(path, O_WRONLY|O_CREAT|O_TRUNC, 0664)` and 
     //     `open(path, O_RDONLY, 0664)` for stdin
+
+    // As soon as any child process is terminated, the shell has to print out 
+    //     the pid of the terminated process together with its exit code
 
 }
 
