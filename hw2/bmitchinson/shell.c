@@ -8,6 +8,8 @@
 #include <sys/types.h>
 #include <fcntl.h>
 
+#include <signal.h>
+
 
 typedef struct {
   char* binary_path;
@@ -29,7 +31,6 @@ short parse_command(command*, char*);
 void process_command(command);
 
 //global variables here
-
 
 short getlinedup(FILE* fp, char** value){
   char* line = NULL;
@@ -177,19 +178,57 @@ void free_command(command cmd){
 }
 
 void process_command(command cmd){
-  /*
-    process_command will:
-    - get a parsed_command variable
-    - create a child process
-    - set file redirection, niceness, arguments, envirionment variables, ...
-    
-    - call a proper variant of execv
+  int rc = fork();
+  if (rc < 0) {
+    fprintf(stderr, "fork failed\n");
+    exit(1);
+  } else if (rc == 0) { // child process
+      printf("New child process started %d\n", (int) getpid());
+      exit(4);
+      // set alternate file streams
+      // if stdin
+        // set stdin
+      // if stout
+        // set stout
+      // if stderr
+        // set stderr
+
+      // if niceness
+        // set niceness
+
+      // if timeout, 
+        // wrap command with timeout
+
+      // if args
+        // set args
 
 
-    - print when a child process is created and when any child process is terminated
-    - if necessary, wait for the termination of the program
-    */
-   
+      // runin shit - execv(?)()
+      // Reminder that "use_path" means you're given the file name only
+      // --------------------------------
+      // if use_path = 1, copy_env = 0
+        // use execv(pe)() -> envp being an empty array to avoid propagation
+          // execv(pe) will never work when copy_env is 0 since that rids 
+          //     the path var. "You can ignore this issue?"
+      // else if use_path = 1 and copy_env = 1
+        // use execv(p)() 
+      // else if use_path = 0 and copy_env = 1
+       // use execv(_)()
+      // else use_path = 0 and copy_env = 0
+        // use execv(e) -> envp being an empty array to avoid propagation
+
+      // if use_path = 1 and copy_env = 1
+        // use execv(p)() 
+      // else if use_path = 0 and copy_env = 1
+       // use execv(_)()
+      // else use_path = 0 and copy_env = 0
+        // use execv(e) -> envp being an empty array to avoid propagation
+  }
+  else {
+    // parent process
+    // if wait
+    //  wait(null);
+  }
 }
 
 
@@ -203,10 +242,6 @@ int main(int argc, char *argv[], char* env[]) {
       continue;
     }
 
-    //may be useful for debugging
-    //print_parsed_command(parsed_command);
-
-    process_command(parsed_command);
     /*
     process_command will:
     - get a parsed_command variable
@@ -219,8 +254,19 @@ int main(int argc, char *argv[], char* env[]) {
     - print when a child process is created and when any child process is terminated
     - if necessary, wait for the termination of the program
     */
+    // print_parsed_command(parsed_command);
+    process_command(parsed_command);
 
+    
     free_command(parsed_command);
+  }
+
+  // Wait for all children:
+  int status;
+  pid_t term;
+  while( (term = waitpid(-1, &status, 0)) > 0 ) {
+    printf("Child process %d terminated with exit code %d\n", 
+      term, WEXITSTATUS(status));
   }
 
   //remember to wait for the termination of all the child processes, regardless of the value of parsed_command.wait
@@ -230,9 +276,6 @@ int main(int argc, char *argv[], char* env[]) {
     // if you're using execv, you need to inject
     //     the path value (env value?) as argument 0 to execv. the args from
     //     the command_file then come after as arg 1 and arg 2 ...
-
-    // execvupe will never work when copy_enviornemnt is 0 since that rids 
-    //     the path var.
 
     // (-) niceness value fails unless shell is root
 
