@@ -196,7 +196,10 @@ int main(int argc, char *argv[], char* env[]) {
     - get a parsed_command variable
     - create a child process
     - set file redirection, niceness, arguments, envirionment variables, ...
+    
     - call a proper variant of execv
+
+
     - print when a child process is created and when any child process is terminated
     - if necessary, wait for the termination of the program
     */
@@ -205,6 +208,22 @@ int main(int argc, char *argv[], char* env[]) {
   }
 
   //remember to wait for the termination of all the child processes, regardless of the value of parsed_command.wait
+
+    // details and hints 
+    
+    // if you're using execv, you need to inject
+    //     the path value (env value?) as argument 0 to execv. the args from
+    //     the command_file then come after as arg 1 and arg 2 ...
+
+    // execvupe will never work when copy_enviornemnt is 0 since that rids 
+    //     the path var.
+
+    // (-) niceness value fails unless shell is root
+
+    // assume stdin file exists, assume dirs containing stdout and stderr exist
+    //     and are writable. Since stdout + stderr exist, delete their contents on
+    //     load with `open(path, O_WRONLY|O_CREAT|O_TRUNC, 0664)` and 
+    //     `open(path, O_RDONLY, 0664)` for stdin
 
 }
 
