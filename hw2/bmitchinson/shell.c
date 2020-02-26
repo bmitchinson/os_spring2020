@@ -29,8 +29,54 @@ typedef struct {
 void print_parsed_command(command);
 short parse_command(command*, char*);
 void process_command(command);
+char* path_then_args();
+char** decode_hex_into_args(char* hex_string);
 
 //global variables here
+
+char** decode_hex_into_args(char* hex_string) {
+  int letters = strlen(hex_string);
+  char* ascii_string = malloc(letters);
+
+  int arg_count = 1;
+  int i = 0;
+  int pos = 0;
+  while ( i < letters ){
+    if( hex_string[i] == '0' && hex_string[i+1] == '0' ){
+      ascii_string[pos] = 32; // replace 00 with spaces for parse()
+      arg_count++;
+    }
+    else {
+      int asc = 0;
+      asc = (hex_string[i] - 48) * 16;
+      if (hex_string[i+1] > 57) {
+        asc += hex_string[i+1] - 87;
+      } else {
+        asc += hex_string[i+1] - 48;
+      }
+      ascii_string[pos] = asc;
+    }
+    pos++;
+    i+=2;
+  }
+
+  char** ascii_args;
+  ascii_args = malloc(arg_count * letters);
+
+  pos = 0;
+  for (int arg = 0; arg < arg_count; arg++){
+    ascii_args[arg] = malloc(letters);
+    int sub_pos = 0;
+    while (pos < letters && ascii_string[pos] != ' ') {
+      ascii_args[arg][sub_pos] = ascii_string[pos];
+      sub_pos++;
+      pos++;
+    }
+    pos++;
+  }
+
+  return ascii_args;
+}
 
 short getlinedup(FILE* fp, char** value){
   char* line = NULL;
@@ -184,17 +230,34 @@ void process_command(command cmd){
     exit(1);
   } else if (rc == 0) { // child process
       printf("New child process started %d\n", (int) getpid());
-      exit(4);
       // set alternate file streams
-      // if stdin
-        // set stdin
-      // if stout
-        // set stout
-      // if stderr
-        // set stderr
+      // https://www.cs.rutgers.edu/~pxk/416/notes/c-tutorials/dup2.html
+      #pragma GCC diagnostic push
+      #pragma GCC diagnostic ignored "-Wint-conversion"
+      if (cmd.stdin[0]) {
+        printf("REPLACING1");
+        stdin = open(cmd.stdin, O_RDONLY, 0664);
+      }
+      if (cmd.stdout[0]) {
+        printf("REPLACING2");
+        stdout = open(cmd.stdout, O_WRONLY|O_CREAT|O_TRUNC, 0664);
+      }
+      if (cmd.stderr[0]) {
+        printf("REPLACING3");
+        stderr = open(cmd.stderr, O_WRONLY|O_CREAT|O_TRUNC, 0664);
+      }
+      #pragma GCC diagnostic pop
+      // dup2(fileno(someopenfile), STDIN_FILENO);
+      // dup2(fileno(someotherfile), STDOUT_FILENO);
+      // dup2(fileno(somethirdopenfile), STDERR_FILENO);
+      // fclose(someopenfile);
+      // fclose(someotheropenfile);
+      // fclose(somethirdopenfile);
+      // execvp(args[0], args);
 
-      // if niceness
-        // set niceness
+      if (cmd.niceness) {
+        nice(cmd.niceness);
+      }
 
       // if timeout, 
         // wrap command with timeout
@@ -202,9 +265,19 @@ void process_command(command cmd){
       // if args
         // set args
 
+      if (cmd.arguments[0]) {
+        char** converted_args = decode_hex_into_args(cmd.arguments);
+        printf("converted_args 0: %s\n", converted_args[0]);
+      } else {
+        printf("no args\n");
+      }
+
+      exit(3);
 
       // runin shit - execv(?)()
       // Reminder that "use_path" means you're given the file name only
+      // When calling execv and any of its variants, the valued specified as 
+      //     path and the value specified as argv[0] must always be the same.
       // --------------------------------
       // if use_path = 1, copy_env = 0
         // use execv(pe)() -> envp being an empty array to avoid propagation
@@ -217,17 +290,24 @@ void process_command(command cmd){
       // else use_path = 0 and copy_env = 0
         // use execv(e) -> envp being an empty array to avoid propagation
 
-      // if use_path = 1 and copy_env = 1
-        // use execv(p)() 
-      // else if use_path = 0 and copy_env = 1
-       // use execv(_)()
-      // else use_path = 0 and copy_env = 0
-        // use execv(e) -> envp being an empty array to avoid propagation
+      // if (cmd.use_path == 1 && cmd.copy_environment == 0){
+      //   // execvpe();
+      // }
+      // else if (cmd.use_path == 1 && cmd.copy_environment == 1) {
+      //   // execvp();
+      // }
+      // else if (cmd.use_path == 0 && cmd.copy_environment == 1) {
+      //   // execv();
+      // }
+      // else { // (cmd.use_path == 0 && cmd.copy_enviornment == 0) {
+      //   // execve(); // -> envp being an empty array to avoid propagation
+      // }
   }
   else {
+    // printf("parent is movin onward\n");
     // parent process
     // if wait
-    //  wait(null);
+      // wait for PID (rc)
   }
 }
 
