@@ -1,14 +1,15 @@
 FROM ubuntu:16.04
 
-RUN apt-get update && apt-get upgrade
+RUN apt-get update && apt-get upgrade -y
 
-RUN apt install build-essential
+RUN apt install build-essential -y
 
-RUN apt-get install valgrind
+RUN apt-get install valgrind -y
 
 WORKDIR /app
 
-# docker run -it -v $(pwd):/app os_container
+# docker build . -t os
+# docker run -it -v $(pwd):/app os
 
 # gcc -Wall -pedantic -g shell.c -o shell
 # valgrind ./shell ls.txt
