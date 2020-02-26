@@ -30,15 +30,18 @@ void print_parsed_command(command);
 short parse_command(command*, char*);
 void process_command(command);
 char* path_then_args();
-char** decode_hex_into_args(char* hex_string);
+char** decode_hex_into_args(char* hex_string, char* binary_path);
 
 //global variables here
 
-char** decode_hex_into_args(char* hex_string) {
+char** decode_hex_into_args(char* hex_string, char* binary_path) {
   int letters = strlen(hex_string);
   char* ascii_string = malloc(letters);
 
   int arg_count = 1;
+  if (binary_path) {
+    arg_count++;
+  }
   int i = 0;
   int pos = 0;
   while ( i < letters ){
@@ -65,14 +68,20 @@ char** decode_hex_into_args(char* hex_string) {
 
   pos = 0;
   for (int arg = 0; arg < arg_count; arg++){
-    ascii_args[arg] = malloc(letters);
-    int sub_pos = 0;
-    while (pos < letters && ascii_string[pos] != ' ') {
-      ascii_args[arg][sub_pos] = ascii_string[pos];
-      sub_pos++;
+    if (binary_path && arg == 0) {
+      ascii_args[0] = malloc(strlen(binary_path));
+      strcpy(ascii_args[0], binary_path);
+    } else {
+      ascii_args[arg] = malloc(letters);
+      int sub_pos = 0;
+      while (pos < letters && ascii_string[pos] != ' ') {
+        ascii_args[arg][sub_pos] = ascii_string[pos];
+        sub_pos++;
+        pos++;
+      }
+      ascii_args[arg][sub_pos] = '\0';
       pos++;
     }
-    pos++;
   }
 
   return ascii_args;
@@ -262,24 +271,23 @@ void process_command(command cmd){
       // if timeout, 
         // wrap command with timeout
 
-      // if args
-        // set args
-
-      if (cmd.arguments[0]) {
-        char** converted_args = decode_hex_into_args(cmd.arguments);
-        printf("converted_args 0: %s\n", converted_args[0]);
+      char** converted_args = NULL;
+      if (cmd.arguments[0] && cmd.use_path == 0) {
+        // printf("giving binary path to place as first arg\n");
+        converted_args = decode_hex_into_args(cmd.arguments, cmd.binary_path);
+      } else if (cmd.arguments[0]) {
+        converted_args = decode_hex_into_args(cmd.arguments, NULL);
       } else {
         printf("no args\n");
       }
-
-      exit(3);
 
       // runin shit - execv(?)()
       // Reminder that "use_path" means you're given the file name only
       // When calling execv and any of its variants, the valued specified as 
       //     path and the value specified as argv[0] must always be the same.
       // --------------------------------
-      // if use_path = 1, copy_env = 0
+      if (cmd.use_path == 1 && cmd.copy_environment == 0) {
+        // execvpe(cmd.binary_path, converted_args, NULL);
         // use execv(pe)() -> envp being an empty array to avoid propagation
           // execv(pe) will never work when copy_env is 0 since that rids 
           //     the path var. "You can ignore this issue?"
@@ -287,21 +295,15 @@ void process_command(command cmd){
         // use execv(p)() 
       // else if use_path = 0 and copy_env = 1
        // use execv(_)()
-      // else use_path = 0 and copy_env = 0
+      } else if (cmd.use_path == 0 && cmd.copy_environment == 0) {
         // use execv(e) -> envp being an empty array to avoid propagation
-
-      // if (cmd.use_path == 1 && cmd.copy_environment == 0){
-      //   // execvpe();
-      // }
-      // else if (cmd.use_path == 1 && cmd.copy_environment == 1) {
-      //   // execvp();
-      // }
-      // else if (cmd.use_path == 0 && cmd.copy_environment == 1) {
-      //   // execv();
-      // }
-      // else { // (cmd.use_path == 0 && cmd.copy_enviornment == 0) {
-      //   // execve(); // -> envp being an empty array to avoid propagation
-      // }
+        printf("path: %s arg0: %s\n", cmd.binary_path, converted_args[0]);
+        printf("arg1: %s\n", converted_args[1]);
+        printf("arg2: %s\n", converted_args[2]);
+        printf("arg3: %s\n", converted_args[3]);
+        execve(cmd.binary_path, converted_args, NULL);
+      }
+      exit(3);
   }
   else {
     // printf("parent is movin onward\n");
