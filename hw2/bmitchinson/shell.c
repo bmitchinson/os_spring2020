@@ -270,8 +270,9 @@ void process_command(command cmd){
 
       char* command;
       char** converted_args = NULL;
+      command = malloc(strlen(cmd.binary_path));
+      strcpy(command, cmd.binary_path);
       if (cmd.arguments[0] && cmd.use_path == 0) {
-        // printf("giving binary path to place as first arg\n");
         converted_args = decode_hex_into_args(cmd.arguments, command);
       } else if (cmd.arguments[0]) {
         converted_args = decode_hex_into_args(cmd.arguments, command);
@@ -288,7 +289,7 @@ void process_command(command cmd){
         command = malloc(20);
         strcpy(command, "/usr/bin/timeout");
         decoded_args = decode_hex_into_args(cmd.arguments, cmd.binary_path);
-        
+
         converted_args = malloc(200);
         converted_args[0] = "/usr/bin/timeout";
         converted_args[1] = "--preserve-status";
