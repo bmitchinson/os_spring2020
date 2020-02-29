@@ -269,9 +269,9 @@ void process_command(command cmd){
       }      
 
       char* command;
-      char** converted_args = NULL;
       command = malloc(strlen(cmd.binary_path));
       strcpy(command, cmd.binary_path);
+      char** converted_args = NULL;
       if (cmd.arguments[0] && cmd.use_path == 0) {
         converted_args = decode_hex_into_args(cmd.arguments, command);
       } else if (cmd.arguments[0]) {
@@ -281,10 +281,7 @@ void process_command(command cmd){
         printf("no args\n");
       }
 
-      if (cmd.timeout == 0){
-        command = malloc(strlen(cmd.binary_path));
-        strcpy(command, cmd.binary_path);
-      } else {
+      if (cmd.timeout != 0) {
         char** decoded_args;
         command = malloc(20);
         strcpy(command, "/usr/bin/timeout");
@@ -334,13 +331,18 @@ void process_command(command cmd){
       exit(3);
   }
   else {
-    // printf("parent is movin onward\n");
     // parent process
-    // if wait
-      // wait for PID (rc)
+    if (cmd.wait > 0) {
+      int status;
+      pid_t term;
+      printf("REMOVE: waiting for %i\n", rc);
+      while( (term = waitpid(rc, &status, 0)) > 0 ) {
+        printf("Child process %d terminated with exit code %d\n", 
+          term, WEXITSTATUS(status));
+      }
+    }
   }
 }
-
 
 int main(int argc, char *argv[], char* env[]) {
 
