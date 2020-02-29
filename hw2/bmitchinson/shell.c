@@ -46,7 +46,7 @@ char** decode_hex_into_args(char* hex_string, char* binary_path) {
   int pos = 0;
   while ( i < letters ){
     if( hex_string[i] == '0' && hex_string[i+1] == '0' ){
-      ascii_string[pos] = 32; // replace 00 with spaces for parse()
+      ascii_string[pos] = 32;
       arg_count++;
     }
     else {
@@ -74,7 +74,7 @@ char** decode_hex_into_args(char* hex_string, char* binary_path) {
     } else {
       ascii_args[arg] = malloc(letters);
       int sub_pos = 0;
-      while (pos < letters && ascii_string[pos] != ' ') {
+      while (pos < (letters / 2) && ascii_string[pos] != ' ') {
         ascii_args[arg][sub_pos] = ascii_string[pos];
         sub_pos++;
         pos++;
@@ -83,7 +83,6 @@ char** decode_hex_into_args(char* hex_string, char* binary_path) {
       pos++;
     }
   }
-
   return ascii_args;
 }
 
@@ -295,12 +294,9 @@ void process_command(command cmd){
         // use execv(p)() 
       // else if use_path = 0 and copy_env = 1
        // use execv(_)()
+        // execvpe(cmd.binary_path, converted_args, NULL);
       } else if (cmd.use_path == 0 && cmd.copy_environment == 0) {
         // use execv(e) -> envp being an empty array to avoid propagation
-        printf("path: %s arg0: %s\n", cmd.binary_path, converted_args[0]);
-        printf("arg1: %s\n", converted_args[1]);
-        printf("arg2: %s\n", converted_args[2]);
-        printf("arg3: %s\n", converted_args[3]);
         execve(cmd.binary_path, converted_args, NULL);
       }
       exit(3);
