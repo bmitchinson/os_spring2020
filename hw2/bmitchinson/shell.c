@@ -28,12 +28,10 @@ typedef struct {
 //function prototypes
 void print_parsed_command(command);
 short parse_command(command*, char*);
-void process_command(command);
+void process_command(command, char**);
 char* path_then_args();
 char** decode_hex_into_args(char* hex_string, char* binary_path);
 char** decode_hex_into_env(char* hex_string);
-
-//global variables here
 
 char** decode_hex_into_args(char* hex_string, char* binary_path) {
   int letters = strlen(hex_string);
@@ -47,7 +45,7 @@ char** decode_hex_into_args(char* hex_string, char* binary_path) {
   int pos = 0;
   while ( i < letters ){
     if( hex_string[i] == '0' && hex_string[i+1] == '0' ){
-      ascii_string[pos] = 32;
+      ascii_string[pos] = 64;
       arg_count++;
     }
     else {
@@ -75,7 +73,7 @@ char** decode_hex_into_args(char* hex_string, char* binary_path) {
     } else {
       ascii_args[arg] = malloc(letters);
       int sub_pos = 0;
-      while (pos < (letters / 2) && ascii_string[pos] != ' ') {
+      while (pos < (letters / 2) && ascii_string[pos] != '@') {
         ascii_args[arg][sub_pos] = ascii_string[pos];
         sub_pos++;
         pos++;
@@ -278,37 +276,29 @@ void free_command(command cmd){
   free(cmd.extra_environment);
 }
 
-void process_command(command cmd){
+void process_command(command cmd, char* existing_env[]){
   int rc = fork();
   if (rc < 0) {
     fprintf(stderr, "fork failed\n");
     exit(1);
   } else if (rc == 0) { // child process
       printf("New child process started %d\n", (int) getpid());
-      // set alternate file streams
-      // https://www.cs.rutgers.edu/~pxk/416/notes/c-tutorials/dup2.html
-      #pragma GCC diagnostic push
-      #pragma GCC diagnostic ignored "-Wint-conversion"
+      
       if (cmd.stdin[0]) {
-        printf("REPLACING1");
-        stdin = open(cmd.stdin, O_RDONLY, 0664);
+        int fd = open(cmd.stdin, O_RDONLY, 0664);
+        dup2(fd, 0);
+        close(fd);
       }
       if (cmd.stdout[0]) {
-        printf("REPLACING2");
-        stdout = open(cmd.stdout, O_WRONLY|O_CREAT|O_TRUNC, 0664);
+        int fd = open(cmd.stdout, O_WRONLY|O_CREAT|O_TRUNC, 0664);
+        dup2(fd, 1);
+        close(fd);
       }
       if (cmd.stderr[0]) {
-        printf("REPLACING3");
-        stderr = open(cmd.stderr, O_WRONLY|O_CREAT|O_TRUNC, 0664);
+        int fd = open(cmd.stderr, O_WRONLY|O_CREAT|O_TRUNC, 0664);
+        dup2(fd, 2);
+        close(fd);
       }
-      #pragma GCC diagnostic pop
-      // dup2(fileno(someopenfile), STDIN_FILENO);
-      // dup2(fileno(someotherfile), STDOUT_FILENO);
-      // dup2(fileno(somethirdopenfile), STDERR_FILENO);
-      // fclose(someopenfile);
-      // fclose(someotheropenfile);
-      // fclose(somethirdopenfile);
-      // execvp(args[0], args);
 
       if (cmd.niceness) {
         nice(cmd.niceness);
@@ -354,7 +344,9 @@ void process_command(command cmd){
         // TODO to merge with existing?
         execvpe(command, converted_args, custom_env);
       } else if (cmd.use_path == 1 && cmd.copy_environment == 1) {
-        
+        // printf("exist0:%s\n", existing_env[0]);
+        // printf("cmd:%s\na0:%s\na1:%s\na2:%s\na3:%s\na4:%s\n",command, converted_args[0], converted_args[1], converted_args[2], converted_args[3], converted_args[4]);
+        execvpe(command, converted_args, existing_env);
       } else if (cmd.use_path == 0 && cmd.copy_environment == 1) {
 
       }
@@ -386,8 +378,8 @@ int main(int argc, char *argv[], char* env[]) {
       printf("command file %s is invalid\n", argv[ncommand]);
       continue;
     }
-
-    process_command(parsed_command);
+    
+    process_command(parsed_command, env);
     free_command(parsed_command);
   }
 
