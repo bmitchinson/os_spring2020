@@ -31,6 +31,7 @@ short parse_command(command*, char*);
 void process_command(command);
 char* path_then_args();
 char** decode_hex_into_args(char* hex_string, char* binary_path);
+char** decode_hex_into_env(char* hex_string);
 
 //global variables here
 
@@ -82,6 +83,51 @@ char** decode_hex_into_args(char* hex_string, char* binary_path) {
       ascii_args[arg][sub_pos] = '\0';
       pos++;
     }
+  }
+  ascii_args[arg_count] = NULL;
+  return ascii_args;
+}
+
+char** decode_hex_into_env(char* hex_string) {
+  int letters = strlen(hex_string);
+  char* ascii_string = malloc(letters);
+
+  int arg_count = 1;
+  int i = 0;
+  int pos = 0;
+  while ( i < letters ){
+    if( hex_string[i] == '0' && hex_string[i+1] == '0' ){
+      ascii_string[pos] = 32;
+      arg_count++;
+    }
+    else {
+      int asc = 0;
+      asc = (hex_string[i] - 48) * 16;
+      if (hex_string[i+1] > 57) {
+        asc += hex_string[i+1] - 87;
+      } else {
+        asc += hex_string[i+1] - 48;
+      }
+      ascii_string[pos] = asc;
+    }
+    pos++;
+    i+=2;
+  }
+
+  char** ascii_args;
+  ascii_args = malloc((arg_count * letters) + 1);
+
+  pos = 0;
+  for (int arg = 0; arg < arg_count; arg++){
+    ascii_args[arg] = malloc(letters);
+    int sub_pos = 0;
+    while (pos < (letters / 2) && ascii_string[pos] != ' ') {
+      ascii_args[arg][sub_pos] = ascii_string[pos];
+      sub_pos++;
+      pos++;
+    }
+    ascii_args[arg][sub_pos] = '\0';
+    pos++;
   }
   ascii_args[arg_count] = NULL;
   return ascii_args;
@@ -300,31 +346,19 @@ void process_command(command cmd){
         }
       }
 
-      // runin shit - execv(?)()
-      // Reminder that "use_path" means you're given the file name only
-      // When calling execv and any of its variants, the valued specified as 
-      //     path and the value specified as argv[0] must always be the same.
-      // --------------------------------
       if (cmd.use_path == 1 && cmd.copy_environment == 0) {
-        // execvpe(cmd.binary_path, converted_args, NULL);
-        // use execv(pe)() -> envp being an empty array to avoid propagation
-          // execv(pe) will never work when copy_env is 0 since that rids 
-          //     the path var. "You can ignore this issue?"
-      // else if use_path = 1 and copy_env = 1
-        // use execv(p)() 
-      // else if use_path = 0 and copy_env = 1
-       // use execv(_)()
-        // printf("cmd:%s arg0:%s arg1:%s\n",command, converted_args[0], converted_args[1]);
-        // printf("cmd:%s\n args: 0:%s\n 1:%s\n 2:%s\n 3:%s\n 4:%s\n 5:%s\n 6:%s\n", command, converted_args[0], converted_args[1], converted_args[2], converted_args[3], converted_args[4], converted_args[5], converted_args[6]);
-        execvpe(command, converted_args, NULL);
-        // execvpe(cmd.binary_path, converted_args, NULL);
+        char** custom_env = NULL;
+        if (cmd.extra_environment[0]) {
+          custom_env = decode_hex_into_env(cmd.extra_environment);
+        }
+        // TODO to merge with existing?
+        execvpe(command, converted_args, custom_env);
       } else if (cmd.use_path == 1 && cmd.copy_environment == 1) {
         
       } else if (cmd.use_path == 0 && cmd.copy_environment == 1) {
 
       }
       else if (cmd.use_path == 0 && cmd.copy_environment == 0) {
-        // use execv(e) -> envp being an empty array to avoid propagation
         execve(command, converted_args, NULL);
       }
       printf("*** exit3 should never happen ***\n");
@@ -335,7 +369,6 @@ void process_command(command cmd){
     if (cmd.wait > 0) {
       int status;
       pid_t term;
-      printf("REMOVE: waiting for %i\n", rc);
       while( (term = waitpid(rc, &status, 0)) > 0 ) {
         printf("Child process %d terminated with exit code %d\n", 
           term, WEXITSTATUS(status));
@@ -354,22 +387,7 @@ int main(int argc, char *argv[], char* env[]) {
       continue;
     }
 
-    /*
-    process_command will:
-    - get a parsed_command variable
-    - create a child process
-    - set file redirection, niceness, arguments, envirionment variables, ...
-    
-    - call a proper variant of execv
-
-
-    - print when a child process is created and when any child process is terminated
-    - if necessary, wait for the termination of the program
-    */
-    // print_parsed_command(parsed_command);
     process_command(parsed_command);
-
-    
     free_command(parsed_command);
   }
 
@@ -381,10 +399,6 @@ int main(int argc, char *argv[], char* env[]) {
       term, WEXITSTATUS(status));
   }
 
-  //remember to wait for the termination of all the child processes, regardless of the value of parsed_command.wait
-
-    // details and hints 
-    
     // if you're using execv, you need to inject
     //     the path value (env value?) as argument 0 to execv. the args from
     //     the command_file then come after as arg 1 and arg 2 ...
@@ -395,9 +409,6 @@ int main(int argc, char *argv[], char* env[]) {
     //     and are writable. Since stdout + stderr exist, delete their contents on
     //     load with `open(path, O_WRONLY|O_CREAT|O_TRUNC, 0664)` and 
     //     `open(path, O_RDONLY, 0664)` for stdin
-
-    // As soon as any child process is terminated, the shell has to print out 
-    //     the pid of the terminated process together with its exit code
 
 }
 
