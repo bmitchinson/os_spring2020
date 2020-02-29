@@ -64,7 +64,7 @@ char** decode_hex_into_args(char* hex_string, char* binary_path) {
   }
 
   char** ascii_args;
-  ascii_args = malloc(arg_count * letters);
+  ascii_args = malloc((arg_count * letters) + 1);
 
   pos = 0;
   for (int arg = 0; arg < arg_count; arg++){
@@ -83,6 +83,7 @@ char** decode_hex_into_args(char* hex_string, char* binary_path) {
       pos++;
     }
   }
+  ascii_args[arg_count] = NULL;
   return ascii_args;
 }
 
@@ -275,9 +276,19 @@ void process_command(command cmd){
         // printf("giving binary path to place as first arg\n");
         converted_args = decode_hex_into_args(cmd.arguments, cmd.binary_path);
       } else if (cmd.arguments[0]) {
-        converted_args = decode_hex_into_args(cmd.arguments, NULL);
+        converted_args = decode_hex_into_args(cmd.arguments, cmd.binary_path);
+        // converted_args = decode_hex_into_args(cmd.arguments, NULL);
       } else {
         printf("no args\n");
+      }
+
+      char* command;
+      if (cmd.timeout > 0){
+        command = malloc(strlen(cmd.binary_path));
+        strcpy(command, cmd.binary_path);
+      } else {
+        command = malloc(strlen(cmd.binary_path));
+        strcpy(command, cmd.binary_path);
       }
 
       // runin shit - execv(?)()
@@ -294,11 +305,18 @@ void process_command(command cmd){
         // use execv(p)() 
       // else if use_path = 0 and copy_env = 1
        // use execv(_)()
+        execvpe(command, converted_args, NULL);
         // execvpe(cmd.binary_path, converted_args, NULL);
-      } else if (cmd.use_path == 0 && cmd.copy_environment == 0) {
-        // use execv(e) -> envp being an empty array to avoid propagation
-        execve(cmd.binary_path, converted_args, NULL);
+      } else if (cmd.use_path == 1 && cmd.copy_environment == 1) {
+        
+      } else if (cmd.use_path == 0 && cmd.copy_environment == 1) {
+
       }
+      else if (cmd.use_path == 0 && cmd.copy_environment == 0) {
+        // use execv(e) -> envp being an empty array to avoid propagation
+        execve(command, converted_args, NULL);
+      }
+      printf("exit3 should never happen");
       exit(3);
   }
   else {
