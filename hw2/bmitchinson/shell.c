@@ -266,29 +266,40 @@ void process_command(command cmd){
 
       if (cmd.niceness) {
         nice(cmd.niceness);
-      }
+      }      
 
-      // if timeout, 
-        // wrap command with timeout
-
+      char* command;
       char** converted_args = NULL;
       if (cmd.arguments[0] && cmd.use_path == 0) {
         // printf("giving binary path to place as first arg\n");
-        converted_args = decode_hex_into_args(cmd.arguments, cmd.binary_path);
+        converted_args = decode_hex_into_args(cmd.arguments, command);
       } else if (cmd.arguments[0]) {
-        converted_args = decode_hex_into_args(cmd.arguments, cmd.binary_path);
+        converted_args = decode_hex_into_args(cmd.arguments, command);
         // converted_args = decode_hex_into_args(cmd.arguments, NULL);
       } else {
         printf("no args\n");
       }
 
-      char* command;
-      if (cmd.timeout > 0){
+      if (cmd.timeout == 0){
         command = malloc(strlen(cmd.binary_path));
         strcpy(command, cmd.binary_path);
       } else {
-        command = malloc(strlen(cmd.binary_path));
-        strcpy(command, cmd.binary_path);
+        char** decoded_args;
+        command = malloc(20);
+        strcpy(command, "/usr/bin/timeout");
+        decoded_args = decode_hex_into_args(cmd.arguments, cmd.binary_path);
+        
+        converted_args = malloc(200);
+        converted_args[0] = "/usr/bin/timeout";
+        converted_args[1] = "--preserve-status";
+        converted_args[2] = "-k";
+        converted_args[3] = "1";
+        converted_args[4] = malloc(5);
+        sprintf(converted_args[4], "%d", cmd.timeout);
+        for (int i = 0; decoded_args[i] != NULL; i++){
+          converted_args[5+i] = malloc(strlen(decoded_args[i]) + 1);
+          strcpy(converted_args[5+i], decoded_args[i]);
+        }
       }
 
       // runin shit - execv(?)()
@@ -305,6 +316,8 @@ void process_command(command cmd){
         // use execv(p)() 
       // else if use_path = 0 and copy_env = 1
        // use execv(_)()
+        // printf("cmd:%s arg0:%s arg1:%s\n",command, converted_args[0], converted_args[1]);
+        // printf("cmd:%s\n args: 0:%s\n 1:%s\n 2:%s\n 3:%s\n 4:%s\n 5:%s\n 6:%s\n", command, converted_args[0], converted_args[1], converted_args[2], converted_args[3], converted_args[4], converted_args[5], converted_args[6]);
         execvpe(command, converted_args, NULL);
         // execvpe(cmd.binary_path, converted_args, NULL);
       } else if (cmd.use_path == 1 && cmd.copy_environment == 1) {
@@ -316,7 +329,7 @@ void process_command(command cmd){
         // use execv(e) -> envp being an empty array to avoid propagation
         execve(command, converted_args, NULL);
       }
-      printf("exit3 should never happen");
+      printf("*** exit3 should never happen ***\n");
       exit(3);
   }
   else {

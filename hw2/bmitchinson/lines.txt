@@ -8,4 +8,4 @@ use_path (0: no search, use *given* path  1: shell should search for binary_path
 copy_environment (0: don't propagate with existing shell vars / 1: do propagate)
 niceness (between -20 : 19, use setpriority after fork but before execv)
 wait (0: don't wait before starting next command 1: wait for termination before starting next.) regardless, "shell" program itself has to wait for all to end.
-timeout (If not zero, wrap command with timeout and the value: `/usr/bin/timeout --preserve-status -k 1 15 ls -la)
+timeout (If not zero, wrap command with timeout and the value: `/usr/bin/timeout --preserve-status -k 1 15 ls -la`)
