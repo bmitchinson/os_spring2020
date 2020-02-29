@@ -341,23 +341,27 @@ void process_command(command cmd, char* existing_env[]){
         if (cmd.extra_environment[0]) {
           custom_env = decode_hex_into_env(cmd.extra_environment);
         }
-        // TODO to merge with existing?
         execvpe(command, converted_args, custom_env);
       } else if (cmd.use_path == 1 && cmd.copy_environment == 1) {
-        // printf("exist0:%s\n", existing_env[0]);
-        // printf("cmd:%s\na0:%s\na1:%s\na2:%s\na3:%s\na4:%s\n",command, converted_args[0], converted_args[1], converted_args[2], converted_args[3], converted_args[4]);
         execvpe(command, converted_args, existing_env);
       } else if (cmd.use_path == 0 && cmd.copy_environment == 1) {
-
+        execve(command, converted_args, existing_env);
+      } else if (cmd.use_path == 0 && cmd.copy_environment == 0) {
+        char** custom_env = NULL;
+        if (cmd.extra_environment[0]) {
+          custom_env = decode_hex_into_env(cmd.extra_environment);
+        }
+        execve(command, converted_args, custom_env);
       }
-      else if (cmd.use_path == 0 && cmd.copy_environment == 0) {
-        execve(command, converted_args, NULL);
-      }
-      printf("*** exit3 should never happen ***\n");
-      exit(3);
   }
   else {
     // parent process
+    // int rc = fork();
+    // if (rc < 0) {
+    //   fprintf(stderr, "fork failed\n");
+    //   exit(1);
+    // } else if (rc == 0) { // child process
+    // } else {}
     if (cmd.wait > 0) {
       int status;
       pid_t term;
@@ -365,6 +369,8 @@ void process_command(command cmd, char* existing_env[]){
         printf("Child process %d terminated with exit code %d\n", 
           term, WEXITSTATUS(status));
       }
+    }
+    else {
     }
   }
 }
