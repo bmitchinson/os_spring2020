@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <stdint.h>
 
 int virtualSelf(char* req_addr);
 void (*signal(int signum, void (*sighandler)(int)))(int);
@@ -18,9 +19,12 @@ int main(int arg_count, char** argv) {
   char* req_addr_str = argv[1];
   int isInRange = virtualSelf(req_addr_str);
 
-  // if (isInRange){
-  //   // TODO Catch segfault on read
-  // }
+  if (isInRange){
+    char* byte = malloc(1);
+    unsigned long req_addr = strtol(req_addr_str, NULL, 16);
+    memcpy(byte, "0x400000", 1);
+    printf("%02x\n", *req_addr);
+  }
   sleep(5000);
   return 0;
 }
@@ -34,11 +38,11 @@ int virtualSelf(char* req_addr_str) {
   char m_scan[1035];
 
   pid_t pid = getpid();
-  printf("----\n");
-  #pragma GCC diagnostic ignored "-Wformat="
-  printf("%lu\n", pid);
-  printf("req_addr: %s\n", req_addr_str);
-  printf("----\n");
+  // printf("----\n");
+  // #pragma GCC diagnostic ignored "-Wformat="
+  // printf("%lu\n", pid);
+  // printf("req_addr: %s\n", req_addr_str);
+  // printf("----\n");
 
   // store maps command to read the pid specific maps file
   char* m_cmd;
