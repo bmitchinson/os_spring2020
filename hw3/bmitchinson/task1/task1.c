@@ -3,18 +3,25 @@
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <signal.h>
 
 int virtualSelf(char* req_addr);
+void (*signal(int signum, void (*sighandler)(int)))(int);
+void clean_exit_on_sig(int sig_num)
+{
+  exit(1);
+}
 
 int main(int arg_count, char** argv) {
+  signal(11, clean_exit_on_sig);
   // Requested Addr
   char* req_addr_str = argv[1];
   int isInRange = virtualSelf(req_addr_str);
 
-  if (isInRange){
-    // TODO Catch segfault on read
-  }
-  sleep(5);
+  // if (isInRange){
+  //   // TODO Catch segfault on read
+  // }
+  sleep(5000);
   return 0;
 }
 
