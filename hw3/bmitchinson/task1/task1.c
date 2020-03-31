@@ -21,9 +21,13 @@ int main(int arg_count, char** argv) {
 
   if (isInRange){
     char* byte = malloc(1);
-    unsigned long req_addr = strtol(req_addr_str, NULL, 16);
-    memcpy(byte, (void*)0x400000, 1);
-    printf("%02x\n", *byte);
+    char* ptr;
+    long req_addr = strtol(req_addr_str, &ptr, 16);
+
+    char *virtAddr = (char*)req_addr;
+    char byteAddr = *(virtAddr);
+    // memcpy(byte, (void*)0x400000, 1);
+    printf("%02x\n", byteAddr);
   }
   sleep(5000);
   return 0;
