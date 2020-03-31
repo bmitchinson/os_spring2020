@@ -22,8 +22,8 @@ int main(int arg_count, char** argv) {
   if (isInRange){
     char* byte = malloc(1);
     unsigned long req_addr = strtol(req_addr_str, NULL, 16);
-    memcpy(byte, "0x400000", 1);
-    printf("%02x\n", *req_addr);
+    memcpy(byte, (void*)0x400000, 1);
+    printf("%02x\n", *byte);
   }
   sleep(5000);
   return 0;
