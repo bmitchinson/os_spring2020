@@ -20,14 +20,9 @@ int main(int arg_count, char** argv) {
   int isInRange = virtualSelf(req_addr_str);
 
   if (isInRange){
-    char* byte = malloc(1);
-    char* ptr;
-    long req_addr = strtol(req_addr_str, &ptr, 16);
-
-    char *virtAddr = (char*)req_addr;
-    char byteAddr = *(virtAddr);
-    // memcpy(byte, (void*)0x400000, 1);
-    printf("%02x\n", byteAddr);
+    long req_addr = strtol(req_addr_str, NULL, 16);
+    char byte_ptr = *(char*)(req_addr);
+    printf("%02x\n", byte_ptr);
   }
   return 0;
 }
@@ -41,11 +36,6 @@ int virtualSelf(char* req_addr_str) {
   char m_scan[1035];
 
   pid_t pid = getpid();
-  // printf("----\n");
-  // #pragma GCC diagnostic ignored "-Wformat="
-  // printf("%lu\n", pid);
-  // printf("req_addr: %s\n", req_addr_str);
-  // printf("----\n");
 
   // store maps command to read the pid specific maps file
   char* m_cmd;
@@ -81,10 +71,6 @@ int virtualSelf(char* req_addr_str) {
       memcpy(beg, &m_scan[0], 16);
       memcpy(end, &m_scan[17], 16);
     }
-
-    // printf("%s\n", beg);
-    // printf("%s\n", end);
-    // printf("%s", m_scan);
 
     if ((strtol(beg, NULL, 16) <= req_addr) && (req_addr < strtol(end, NULL, 16))){
       return 1;
