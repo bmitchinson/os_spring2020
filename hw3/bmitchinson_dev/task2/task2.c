@@ -25,8 +25,8 @@ int main(int arg_count, char** argv) {
   char* assembly_code_raw = argv[1];
   byte* mem = (byte*) mmap(0, 10000, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
   byte* mem_start = mem;
-  printf("mem: %p\n", mem);
-  printf("mem_start: %p\n", mem_start);
+  // printf("mem: %p\n", mem);
+  // printf("mem_start: %p\n", mem_start);
   
   if (mem == MAP_FAILED){
     printf("map failed\n");
@@ -38,15 +38,15 @@ int main(int arg_count, char** argv) {
     while (i < strlen(assembly_code_raw)){
       two_hex[0] = assembly_code_raw[i];
       two_hex[1] = assembly_code_raw[i+1];
-      printf("two_hex:%s\n", two_hex);
+      // printf("two_hex:%s\n", two_hex);
       sscanf(two_hex, "%02hhx", mem);
-      printf("wrote: %s\n", mem);
+      // printf("wrote: %s\n", mem);
       mem++;
 
       i+=2;
     }
-    printf("mem:       %p\n", mem);
-    printf("mem_start: %p\n", mem_start);
+    // printf("mem:       %p\n", mem);
+    // printf("mem_start: %p\n", mem_start);
 
     ((void (*)(void))mem_start)();
 
