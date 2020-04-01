@@ -29,7 +29,6 @@ int main(int arg_count, char** argv) {
     // memcpy(byte, (void*)0x400000, 1);
     printf("%02x\n", byteAddr);
   }
-  sleep(5000);
   return 0;
 }
 
@@ -85,7 +84,7 @@ int virtualSelf(char* req_addr_str) {
 
     // printf("%s\n", beg);
     // printf("%s\n", end);
-    printf("%s", m_scan);
+    // printf("%s", m_scan);
 
     if ((strtol(beg, NULL, 16) <= req_addr) && (req_addr < strtol(end, NULL, 16))){
       return 1;
