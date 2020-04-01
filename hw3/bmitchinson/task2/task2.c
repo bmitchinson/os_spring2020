@@ -23,25 +23,45 @@ int main(int arg_count, char** argv) {
 
   // byte* mem;
   char* assembly_code_raw = argv[1];
-  byte *mem = mmap(0, 10000, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+  byte* mem = (byte*) mmap(0, 10000, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+  byte* mem_start = mem;
+  printf("mem: %p\n", mem);
+  printf("mem_start: %p\n", mem_start);
+  
   if (mem == MAP_FAILED){
     printf("map failed\n");
     exit(1);
   }
   else {
-    printf("we're good\n");
-    // sscanf("h", "%c", mem[0]);
-    // sscanf("i", "%c", mem[1]);
-    // sscanf("\0", "%c", mem[2]);
-    int placed = sscanf("hi", "%s", mem);
-    printf("placed: %i\n", placed);
-    // sscanf(assembly_code_raw[0], "%02hx", mem[0]);
-    printf("scanned\n");
-    printf("mem: %c\n", mem[1]);
-    printf("k\n");
-    // ((void (*)(void))mem)();
+    int i = 0;
+    char* two_hex = malloc(2);
+    while (i < strlen(assembly_code_raw)){
+      two_hex[0] = assembly_code_raw[i];
+      two_hex[1] = assembly_code_raw[i+1];
+      printf("two_hex:%s\n", two_hex);
+      sscanf(two_hex, "%02hhx", mem);
+      printf("wrote: %s\n", mem);
+      mem++;
+
+      i+=2;
+    }
+    printf("mem:       %p\n", mem);
+    printf("mem_start: %p\n", mem_start);
+
+    ((void (*)(void))mem_start)();
+
+    // sscanf("h", "%c", mem);
+    // mem++;
+    // sscanf("i", "%c", mem);
+    // mem++;
+    // sscanf("\0", "%c", mem);
+    // printf("placed: %i\n", placed);
+    // printf("scanned\n");
+    // mem--;
+    // mem--;
+    // printf("mem: %c\n", mem);
+    // printf("k\n");
   }
   // sscanf("e", "%02hx", mem);
-  // for (int i = 0; i < strlen(assembly_code_raw); i++){
   // }
 }
