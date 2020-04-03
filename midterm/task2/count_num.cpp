@@ -49,7 +49,6 @@ int main(int argc, char *argv[]) {
 	{ 
 		if(fork() == 0) 
 		{ 
-			printf("[son%d:]\n", i);
 			string out_name = to_string(i) + ".txt";
 			ofstream out_file;
 			out_file.open(out_name);
@@ -57,9 +56,10 @@ int main(int argc, char *argv[]) {
 			int lines_to_process;
 
 			lines_to_process = lines_per_process;
-			if (i == i-1)
+			if (i == n-1)
 				lines_to_process = lines_in_last_process;
 
+			printf("son %d: lines to process: %d\n", i, lines_to_process);
 			for(int j=0; j < lines_to_process; j++){
 				printf("i:%d j:%d\n", i, j);
 				x = stoi(fin_lines.at(i * lines_per_process + j));
