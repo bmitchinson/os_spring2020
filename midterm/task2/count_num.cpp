@@ -35,10 +35,15 @@ int main(int argc, char *argv[]) {
 	// 	cout << fin_lines[i] << "\n"; 
 	line_count = fin_lines.size();
 	lines_per_process = line_count/n + (line_count % n != 0);
-	lines_in_last_process = line_count % n;
+	lines_in_last_process = line_count % lines_per_process;
 
 	if (!lines_in_last_process)
 		lines_in_last_process = lines_per_process;
+
+	printf("line count: %d\n", line_count);
+	printf("lines per process: %d\n", lines_per_process);
+	printf("lines in last: %d\n", lines_in_last_process);
+
 
 	for(int i=0;i<n;i++)
 	{ 
