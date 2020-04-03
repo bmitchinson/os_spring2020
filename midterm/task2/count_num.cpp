@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <map>
 #include <bits/stdc++.h> 
+#include <string>
 using namespace std;
 
 void clean_exit_on_sig(int sig_num)
@@ -22,7 +23,6 @@ int main(int argc, char *argv[]) {
 	int line_count;
 	int lines_per_process;
 	int lines_in_last_process;
-	map<int, int> counts;
 	int x;
 
   char* process_count_str = argv[2];
@@ -44,33 +44,43 @@ int main(int argc, char *argv[]) {
 	{ 
 		if(fork() == 0) 
 		{ 
-			// open file
-			// "pass" 
-			// write to file "3.txt"
-			printf("[son%d:] pid %d from [parent] pid %d\n",i, getpid(),getppid()); 
+			printf("[son%d:]\n", i);
+			string out_name = to_string(i) + ".txt";
+			ofstream out_file;
+			out_file.open(out_name);
+			map<int, int> counts;
+			int lines_to_process;
+
+			lines_to_process = lines_per_process;
+			if (i == i-1)
+				lines_to_process = lines_in_last_process;
+
+			for(int j=0; j < lines_to_process; j++){
+				printf("i:%d j:%d\n", i, j);
+				x = stoi(fin_lines.at(i * lines_per_process + j));
+				if (counts.find(x) == counts.end()){
+					counts[x] = 1;
+				} else {
+					counts[x]++;
+				}
+			}
+			
+			for (auto &c: counts) {
+				out_file << c.first << " " << c.second << endl;
+			}
 			exit(0); 
 		}
 	} 
 	for(int i=0;i<n;i++){
 		wait(NULL);
 	}
-		// loop will run n times (n=5) 
-      
-    // for(int i=0;i<5;i++){
-      // open "i.txt" file
-      // input all entries into map
-    //}
-
-    // output map into file.
 
 	// while (fin >> x) {
 	// 	if (counts.find(x) == counts.end()) counts[x] = 0;
 	// 	counts[x]++;
 	// }
 
-	// for (auto &c: counts) {
-	// 	cout << c.first << " " << c.second << endl;
-	// }
+
 
 	return 0;
 }
