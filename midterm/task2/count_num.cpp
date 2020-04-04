@@ -40,9 +40,9 @@ int main(int argc, char *argv[]) {
 	if (!lines_in_last_process)
 		lines_in_last_process = lines_per_process;
 
-	printf("line count: %d\n", line_count);
-	printf("lines per process: %d\n", lines_per_process);
-	printf("lines in last: %d\n", lines_in_last_process);
+	// printf("line count: %d\n", line_count);
+	// printf("lines per process: %d\n", lines_per_process);
+	// printf("lines in last: %d\n", lines_in_last_process);
 
 
 	for(int i=0;i<n;i++)
@@ -59,9 +59,9 @@ int main(int argc, char *argv[]) {
 			if (i == n-1)
 				lines_to_process = lines_in_last_process;
 
-			printf("son %d: lines to process: %d\n", i, lines_to_process);
+			// printf("son %d: lines to process: %d\n", i, lines_to_process);
 			for(int j=0; j < lines_to_process; j++){
-				printf("i:%d j:%d\n", i, j);
+				// printf("i:%d j:%d\n", i, j);
 				x = stoi(fin_lines.at(i * lines_per_process + j));
 				if (counts.find(x) == counts.end()){
 					counts[x] = 1;
@@ -80,12 +80,25 @@ int main(int argc, char *argv[]) {
 		wait(NULL);
 	}
 
-	// while (fin >> x) {
-	// 	if (counts.find(x) == counts.end()) counts[x] = 0;
-	// 	counts[x]++;
-	// }
+	string num, quantity;
+	map<int, int> counts;
+	for(int file_num=0; file_num<n; file_num++){
+		string in_name = to_string(file_num) + ".txt";
+		fin.close();
+		ifstream fin(in_name);
+		while (fin >> num) {
+			fin >> quantity;
+			if (counts.find(stoi(num)) == counts.end()){
+					counts[stoi(num)] = stoi(quantity);
+				} else {
+					counts[stoi(num)] = counts[stoi(num)] + stoi(quantity);
+				}
+		}
+	}
 
-
-
+	for (auto &c: counts) {
+		cout << c.first << " " << c.second << endl;
+	}
+	
 	return 0;
 }
